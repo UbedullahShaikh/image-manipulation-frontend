@@ -24,6 +24,7 @@ export default function Home() {
 
   const [classificationResult, setClassificationResult] = useState<{
     class_id: number;
+    confidence: number;
   } | null>(null);
 
   // Load settings on mount
@@ -93,7 +94,8 @@ export default function Home() {
       });
 
       setClassificationResult({
-        class_id: classData.class_id
+        class_id: classData.class_id,
+        confidence: classData.confidence
       });
 
       setHasResults(true);

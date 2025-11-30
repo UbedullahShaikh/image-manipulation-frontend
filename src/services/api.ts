@@ -37,7 +37,7 @@ export const apiService = {
         }
     },
 
-    async classifyImage(file: File, apiUrl: string): Promise<{ class_id: number }> {
+    async classifyImage(file: File, apiUrl: string): Promise<{ class_id: number; confidence: number }> {
         const formData = new FormData();
         formData.append("image", file);
 

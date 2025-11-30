@@ -9,6 +9,7 @@ interface AnalysisResultsProps {
     };
     classificationResult: {
         class_id: number;
+        confidence: number;
     };
     onClearImage: () => void;
 }
@@ -67,20 +68,20 @@ export default function AnalysisResults({
                 <div className="bg-muted/50 p-1 rounded-xl flex gap-1">
                     <button
                         onClick={() => setActiveTab("segmentation")}
-                        className={`px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center gap-2 ${activeTab === "segmentation"
-                                ? "bg-background text-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                            }`}
+                        className={`px - 6 py - 2.5 rounded - lg font - semibold text - sm transition - all duration - 300 flex items - center gap - 2 ${activeTab === "segmentation"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                            } `}
                     >
                         <Layers className="w-4 h-4" />
                         Segmentation
                     </button>
                     <button
                         onClick={() => setActiveTab("classification")}
-                        className={`px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center gap-2 ${activeTab === "classification"
-                                ? "bg-background text-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                            }`}
+                        className={`px - 6 py - 2.5 rounded - lg font - semibold text - sm transition - all duration - 300 flex items - center gap - 2 ${activeTab === "classification"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                            } `}
                     >
                         <Activity className="w-4 h-4" />
                         Classification
@@ -178,7 +179,7 @@ export default function AnalysisResults({
                                     </div>
 
                                     {/* Stats Grid */}
-                                    <div className="grid grid-cols-1 gap-4">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
                                             <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Model Architecture</p>
                                             <p className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -186,6 +187,20 @@ export default function AnalysisResults({
                                                 <span className="text-xs bg-foreground/10 px-2 py-0.5 rounded text-foreground/70">v1.0</span>
                                             </p>
                                         </div>
+                                        {/* <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
+                                            <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Confidence Score</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-2.5 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out"
+                                                        style={{ width: `${(classificationResult.confidence * 100).toFixed(1)}% ` }}
+                                                    />
+                                                </div>
+                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                                    {(classificationResult.confidence * 100).toFixed(1)}%
+                                                </span>
+                                            </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>
