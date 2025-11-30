@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import ImageUpload from "../components/ImageUpload";
 import { ArrowRight } from "lucide-react";
 import { apiService } from "../services/api";
-import defaultSettings from "../config/settings.json";
 import HeroSection from "../components/HeroSection";
 import FeaturesSection from "../components/FeaturesSection";
 import LoadingState from "../components/LoadingState";
@@ -31,10 +30,12 @@ export default function Home() {
 
   // Load settings on mount
   useEffect(() => {
-    const savedUrl = localStorage.getItem("apiUrl");
-    if (savedUrl) {
-      setApiUrl(savedUrl);
-    }
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.apiUrl) setApiUrl(data.apiUrl);
+      })
+      .catch((err) => console.error("Failed to load settings:", err));
   }, []);
 
   const handleImageUpload = (file: File, previewUrl: string) => {
@@ -60,15 +61,17 @@ export default function Home() {
   const handleAnalyze = async () => {
     if (!uploadedFile) return;
 
-    // 1. Try to get from localStorage (Local Override)
-    let currentApiUrl = localStorage.getItem("apiUrl");
-
-    // 2. If not in localStorage, use Default from JSON (Global Config)
-    if (!currentApiUrl) {
-      currentApiUrl = defaultSettings.apiUrl;
-      console.log("Using default API URL from settings.json:", currentApiUrl);
-    } else {
-      console.log("Using local API URL override:", currentApiUrl);
+    // Always fetch the latest URL from settings.json via API
+    let currentApiUrl = "";
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      if (data.apiUrl) {
+        currentApiUrl = data.apiUrl;
+        console.log("Using API URL from settings.json:", currentApiUrl);
+      }
+    } catch (error) {
+      console.error("Failed to fetch settings:", error);
     }
 
     if (!currentApiUrl) {

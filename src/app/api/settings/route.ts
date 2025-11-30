@@ -23,16 +23,8 @@ export async function GET() {
     return NextResponse.json(config);
 }
 
-// POST: Save the API URL (Only in Development)
+// POST: Save the API URL
 export async function POST(request: Request) {
-    // Check if we are in development mode
-    if (process.env.NODE_ENV !== "development") {
-        return NextResponse.json(
-            { error: "Global updates are only allowed in local development. Please update locally and push to GitHub." },
-            { status: 403 }
-        );
-    }
-
     try {
         const body = await request.json();
         const { apiUrl } = body;
