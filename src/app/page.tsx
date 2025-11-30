@@ -30,12 +30,10 @@ export default function Home() {
 
   // Load settings on mount
   useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.apiUrl) setApiUrl(data.apiUrl);
-      })
-      .catch((err) => console.error("Failed to load settings:", err));
+    const savedUrl = localStorage.getItem("apiUrl");
+    if (savedUrl) {
+      setApiUrl(savedUrl);
+    }
   }, []);
 
   const handleImageUpload = (file: File, previewUrl: string) => {
@@ -61,18 +59,8 @@ export default function Home() {
   const handleAnalyze = async () => {
     if (!uploadedFile) return;
 
-    // Always fetch the latest URL from settings.json via API
-    let currentApiUrl = "";
-    try {
-      const res = await fetch("/api/settings");
-      const data = await res.json();
-      if (data.apiUrl) {
-        currentApiUrl = data.apiUrl;
-        console.log("Using API URL from settings.json:", currentApiUrl);
-      }
-    } catch (error) {
-      console.error("Failed to fetch settings:", error);
-    }
+    // Get latest URL from localStorage
+    const currentApiUrl = localStorage.getItem("apiUrl");
 
     if (!currentApiUrl) {
       alert("Please configure your Ngrok API URL in the settings (gear icon in navbar)!");
