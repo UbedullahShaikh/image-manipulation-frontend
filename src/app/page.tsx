@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ImageUpload from "../components/ImageUpload";
 import { ArrowRight } from "lucide-react";
 import { apiService } from "../services/api";
+import defaultSettings from "../config/settings.json";
 import HeroSection from "../components/HeroSection";
 import FeaturesSection from "../components/FeaturesSection";
 import LoadingState from "../components/LoadingState";
@@ -59,8 +60,16 @@ export default function Home() {
   const handleAnalyze = async () => {
     if (!uploadedFile) return;
 
-    // Get latest URL from localStorage
-    const currentApiUrl = localStorage.getItem("apiUrl");
+    // 1. Try to get from localStorage (Local Override)
+    let currentApiUrl = localStorage.getItem("apiUrl");
+
+    // 2. If not in localStorage, use Default from JSON (Global Config)
+    if (!currentApiUrl) {
+      currentApiUrl = defaultSettings.apiUrl;
+      console.log("Using default API URL from settings.json:", currentApiUrl);
+    } else {
+      console.log("Using local API URL override:", currentApiUrl);
+    }
 
     if (!currentApiUrl) {
       alert("Please configure your Ngrok API URL in the settings (gear icon in navbar)!");

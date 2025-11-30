@@ -289,34 +289,65 @@ export const NavbarButton = ({
 
 import { IconSettings, IconDeviceFloppy } from "@tabler/icons-react";
 
+import defaultSettings from "../../config/settings.json";
+
 export const NavbarSettings = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [apiUrl, setApiUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isOverride, setIsOverride] = useState(false);
 
-  // Load settings on mount from localStorage
+  // Load settings on mount
   React.useEffect(() => {
     const savedUrl = localStorage.getItem("apiUrl");
     if (savedUrl) {
       setApiUrl(savedUrl);
+      setIsOverride(true);
+    } else {
+      setApiUrl(defaultSettings.apiUrl);
+      setIsOverride(false);
     }
-  }, []);
+  }, [isOpen]); // Reload when opening menu
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      // Simulate a small delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // 1. Try to save to Backend API (Works in Local Dev)
+      const response = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiUrl }),
+      });
 
-      localStorage.setItem("apiUrl", apiUrl);
-      setIsOpen(false);
-      alert("API URL saved locally!");
+      if (response.ok) {
+        // Success: File updated locally
+        setIsOverride(false); // We are using the "new default" effectively
+        setIsOpen(false);
+        alert("Save Successful");
+      } else {
+        // Failure: Likely Vercel (Read-Only) -> Fallback to LocalStorage
+        throw new Error("Cannot save globally");
+      }
+
     } catch (error) {
-      console.error("Failed to save settings:", error);
-      alert("Failed to save settings.");
+      // 2. Fallback to LocalStorage (Local Override)
+      console.warn("Global save failed, falling back to local override:", error);
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+      localStorage.setItem("apiUrl", apiUrl);
+      setIsOverride(true);
+      setIsOpen(false);
+      alert("Save Successful");
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleReset = () => {
+    localStorage.removeItem("apiUrl");
+    setApiUrl(defaultSettings.apiUrl);
+    setIsOverride(false);
+    alert("Reset Successful");
   };
 
   return (
@@ -335,32 +366,59 @@ export const NavbarSettings = () => {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 top-full mt-2 w-72 p-4 bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-gray-200 dark:border-neutral-800"
+            className="absolute right-0 top-full mt-2 w-80 p-5 bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-gray-200 dark:border-neutral-800"
           >
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                Backend Configuration
-              </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  Backend Configuration
+                </h3>
+                {isOverride && (
+                  <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200">
+                    LOCAL OVERRIDE
+                  </span>
+                )}
+              </div>
+
               <div className="space-y-2">
-                <label className="text-xs text-neutral-500 dark:text-neutral-400">
-                  Ngrok Public URL
+                <label className="text-xs text-neutral-500 dark:text-neutral-400 flex justify-between">
+                  <span>Ngrok Public URL</span>
+                  {!isOverride && <span className="text-emerald-500 font-medium">Using Global Default</span>}
                 </label>
                 <input
-                  type="password"
+                  type="text"
                   value={apiUrl}
                   onChange={(e) => setApiUrl(e.target.value)}
                   placeholder="https://xxxx.ngrok-free.app"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  className={`w-full px-3 py-2 text-sm rounded-lg border bg-gray-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all ${isOverride ? "border-amber-300 dark:border-amber-800" : "border-gray-200 dark:border-neutral-800"
+                    }`}
                 />
               </div>
-              <button
-                onClick={handleSaveSettings}
-                disabled={isSaving}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-              >
-                <IconDeviceFloppy className="w-4 h-4" />
-                {isSaving ? "Saving..." : "Save Configuration"}
-              </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveSettings}
+                  disabled={isSaving}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  <IconDeviceFloppy className="w-4 h-4" />
+                  {isSaving ? "Saving..." : "Save Local"}
+                </button>
+
+                {isOverride && (
+                  <button
+                    onClick={handleReset}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-lg text-sm font-medium transition-colors"
+                    title="Reset to Global Default"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+
+              <p className="text-[10px] text-neutral-400 leading-relaxed">
+                <strong>Tip:</strong> To update the URL for everyone, edit <code>src/config/settings.json</code> and push to GitHub.
+              </p>
             </div>
           </motion.div>
         )}
