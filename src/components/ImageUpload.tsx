@@ -60,7 +60,7 @@ export default function ImageUpload({
                     onDrop={handleDrop}
                     className={`
             relative flex flex-col items-center justify-center
-            w-full h-72 md:h-80 rounded-2xl border-2 border-dashed
+            w-full h-64 md:h-80 rounded-2xl border-2 border-dashed
             transition-all duration-300 cursor-pointer bg-card
             ${isDragging
                             ? "border-primary bg-primary/5 shadow-premium-lg scale-[1.01]"
@@ -76,25 +76,25 @@ export default function ImageUpload({
                         id="file-upload"
                     />
 
-                    <div className={`p-5 rounded-full mb-5 transition-all duration-300 ${isDragging ? "bg-primary/10 scale-110" : "bg-primary/5"
+                    <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${isDragging ? "bg-primary/10 scale-110" : "bg-primary/5"
                         }`}>
                         <Upload
-                            className={`w-14 h-14 transition-colors ${isDragging ? "text-primary" : "text-primary/70"
+                            className={`w-10 h-10 transition-colors ${isDragging ? "text-primary" : "text-primary/70"
                                 }`}
                         />
                     </div>
 
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
                         Upload an image
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-6">
+                    <p className="text-xs text-muted-foreground mb-4">
                         Drag & drop or click to browse
                     </p>
 
                     <div className="flex items-center gap-3 text-muted-foreground">
-                        <div className="h-px w-8 bg-border" />
-                        <ImageIcon className="w-4 h-4" />
-                        <div className="h-px w-8 bg-border" />
+                        <div className="h-px w-6 bg-border" />
+                        <ImageIcon className="w-3 h-3" />
+                        <div className="h-px w-6 bg-border" />
                     </div>
                 </div>
             ) : (
@@ -102,7 +102,7 @@ export default function ImageUpload({
                     <img
                         src={uploadedImage}
                         alt="Uploaded preview"
-                        className="w-full h-auto max-h-[500px] object-contain"
+                        className="w-full h-auto max-h-[350px] object-contain"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <button

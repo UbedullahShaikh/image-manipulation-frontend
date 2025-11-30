@@ -116,22 +116,25 @@ export default function Home() {
       <main className="container mx-auto px-4 py-12 md:py-16 relative z-10">
         {/* Upload Section - Shows when no results */}
         {!hasResults && !isAnalyzing && (
-          <div className="max-w-4xl mx-auto space-y-10 animate-fade-in">
+          <div className="max-w-6xl mx-auto animate-fade-in">
 
-            <HeroSection />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
+              {/* Left Column: Hero Text */}
+              <HeroSection />
 
-            {/* Upload Component */}
-            <div className="bg-card/30 backdrop-blur-sm rounded-3xl p-1 border border-border/50 shadow-xl shadow-primary/5">
-              <ImageUpload
-                onImageUpload={handleImageUpload}
-                uploadedImage={uploadedImageUrl}
-                onClearImage={handleClearImage}
-              />
+              {/* Right Column: Upload Box */}
+              <div className="bg-card/30 backdrop-blur-sm rounded-3xl p-1 border border-border/50 shadow-xl shadow-primary/5">
+                <ImageUpload
+                  onImageUpload={handleImageUpload}
+                  uploadedImage={uploadedImageUrl}
+                  onClearImage={handleClearImage}
+                />
+              </div>
             </div>
 
-            {/* Analyze Button */}
+            {/* Analyze Button - Centered below both */}
             {uploadedImageUrl && (
-              <div className="flex justify-center animate-fade-in pt-4">
+              <div className="flex justify-center animate-fade-in pb-12">
                 <button
                   onClick={handleAnalyze}
                   className="group relative px-10 py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-primary/90 transition-all duration-300 shadow-premium-lg hover:shadow-premium-xl hover:scale-[1.02] active:scale-[0.98] flex items-center gap-3"
