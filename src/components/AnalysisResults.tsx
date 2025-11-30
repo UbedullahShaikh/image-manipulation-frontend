@@ -9,6 +9,7 @@ interface AnalysisResultsProps {
     };
     classificationResult: {
         class_id: number;
+        class_name: string;
         confidence: number;
     };
     onClearImage: () => void;
@@ -65,23 +66,23 @@ export default function AnalysisResults({
 
             {/* TABS Navigation */}
             <div className="flex justify-center mb-8">
-                <div className="bg-muted/50 p-1 rounded-xl flex gap-1">
+                <div className="bg-gray-100 dark:bg-neutral-800 p-1.5 rounded-full inline-flex items-center gap-1 shadow-inner">
                     <button
                         onClick={() => setActiveTab("segmentation")}
-                        className={`px - 6 py - 2.5 rounded - lg font - semibold text - sm transition - all duration - 300 flex items - center gap - 2 ${activeTab === "segmentation"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                            } `}
+                        className={`px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 flex items-center gap-2.5 ${activeTab === "segmentation"
+                            ? "bg-white dark:bg-neutral-950 text-foreground shadow-md scale-105"
+                            : "text-muted-foreground hover:text-foreground hover:bg-gray-200/50 dark:hover:bg-neutral-700/50"
+                            }`}
                     >
                         <Layers className="w-4 h-4" />
                         Segmentation
                     </button>
                     <button
                         onClick={() => setActiveTab("classification")}
-                        className={`px - 6 py - 2.5 rounded - lg font - semibold text - sm transition - all duration - 300 flex items - center gap - 2 ${activeTab === "classification"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                            } `}
+                        className={`px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 flex items-center gap-2.5 ${activeTab === "classification"
+                            ? "bg-white dark:bg-neutral-950 text-foreground shadow-md scale-105"
+                            : "text-muted-foreground hover:text-foreground hover:bg-gray-200/50 dark:hover:bg-neutral-700/50"
+                            }`}
                     >
                         <Activity className="w-4 h-4" />
                         Classification
@@ -144,65 +145,70 @@ export default function AnalysisResults({
 
             {/* TAB CONTENT: Classification */}
             {activeTab === "classification" && (
-                <div className="max-w-3xl mx-auto animate-fade-in">
+                <div className="w-full animate-fade-in">
                     <div className="relative overflow-hidden bg-card border border-border rounded-3xl shadow-2xl transition-all hover:shadow-primary/5">
                         {/* Decorative Background */}
-                        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-transparent opacity-50" />
+                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
 
                         <div className="relative p-8 md:p-12">
-                            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-                                {/* Left Side: Icon & Visual */}
-                                <div className="flex-shrink-0 flex flex-col items-center">
-                                    <div className="relative mb-4">
-                                        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border-4 border-primary/10 shadow-inner">
-                                            <Activity className="w-16 h-16 text-primary" />
+                                {/* Left Column: Visual Icon (3 cols) */}
+                                <div className="lg:col-span-3 flex justify-center lg:justify-start">
+                                    <div className="relative">
+                                        <div className="w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border-4 border-primary/10 shadow-inner">
+                                            <Activity className="w-20 h-20 text-primary" />
                                         </div>
-                                        <div className="absolute -bottom-2 -right-2 bg-card p-2 rounded-full shadow-lg border border-border">
-                                            <CheckCircle className="w-8 h-8 text-emerald-500 fill-emerald-500/20" />
+                                        <div className="absolute -bottom-2 -right-2 bg-card p-3 rounded-full shadow-lg border border-border">
+                                            <CheckCircle className="w-10 h-10 text-emerald-500 fill-emerald-500/20" />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Right Side: Details */}
-                                <div className="flex-1 text-center md:text-left space-y-6">
+                                {/* Middle Column: Main Result (5 cols) */}
+                                <div className="lg:col-span-5 text-center lg:text-left space-y-6">
                                     <div>
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-3">
-                                            <Zap className="w-3 h-3" /> AI Analysis
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-4">
+                                            <Zap className="w-3 h-3" /> AI Analysis Complete
                                         </div>
-                                        <h2 className="text-5xl md:text-6xl font-black text-foreground tracking-tight leading-none">
-                                            Class <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">{classificationResult.class_id}</span>
+                                        <h2 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-none capitalize mb-4">
+                                            {classificationResult.class_name}
                                         </h2>
-                                        <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
-                                            The image has been successfully classified by the ResNet50 model.
+                                        <p className="text-xl text-muted-foreground leading-relaxed">
+                                            The image has been identified as <span className="font-bold text-foreground capitalize">{classificationResult.class_name}</span>.
+                                            <br />
+                                            <span className="text-sm opacity-70">(Class ID: {classificationResult.class_id})</span>
                                         </p>
                                     </div>
+                                </div>
 
-                                    {/* Stats Grid */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
-                                            <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Model Architecture</p>
-                                            <p className="text-lg font-bold text-foreground flex items-center gap-2">
-                                                ResNet50.
-                                                <span className="text-xs bg-foreground/10 px-2 py-0.5 rounded text-foreground/70">v1.0</span>
-                                            </p>
+                                {/* Right Column: Detailed Stats (4 cols) */}
+                                <div className="lg:col-span-4 space-y-4">
+                                    {/* Confidence Card */}
+                                    <div className="bg-muted/30 backdrop-blur-sm p-6 rounded-2xl border border-border/50 hover:border-primary/20 transition-all hover:bg-muted/50">
+                                        <div className="flex justify-between items-end mb-2">
+                                            <p className="text-sm text-muted-foreground font-bold uppercase tracking-wider">Confidence Score</p>
+                                            <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                                                {(classificationResult.confidence * 100).toFixed(1)}%
+                                            </span>
                                         </div>
-                                        {/* <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
-                                            <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Confidence Score</p>
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-2.5 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out"
-                                                        style={{ width: `${(classificationResult.confidence * 100).toFixed(1)}% ` }}
-                                                    />
-                                                </div>
-                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                                                    {(classificationResult.confidence * 100).toFixed(1)}%
-                                                </span>
-                                            </div>
-                                        </div> */}
+                                        <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out"
+                                                style={{ width: `${(classificationResult.confidence * 100).toFixed(1)}%` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Model Info Card */}
+                                    <div className="bg-muted/30 backdrop-blur-sm p-6 rounded-2xl border border-border/50 hover:border-primary/20 transition-all hover:bg-muted/50">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground font-bold uppercase tracking-wider mb-1">Model Architecture</p>
+                                            <p className="text-xl font-bold text-foreground">ResNet50</p>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

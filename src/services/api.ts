@@ -12,6 +12,7 @@ export const apiService = {
         // Clean the URL (remove trailing slash if present) and append /segment
         const baseUrl = apiUrl.replace(/\/$/, "");
         const endpoint = `${baseUrl}/segment`;
+        console.log("Attempting to fetch segmentation from:", endpoint);
 
         try {
             const response = await fetch(endpoint, {
@@ -37,12 +38,13 @@ export const apiService = {
         }
     },
 
-    async classifyImage(file: File, apiUrl: string): Promise<{ class_id: number; confidence: number }> {
+    async classifyImage(file: File, apiUrl: string): Promise<{ class_id: number; class_name: string; confidence: number }> {
         const formData = new FormData();
         formData.append("image", file);
 
         const baseUrl = apiUrl.replace(/\/$/, "");
         const endpoint = `${baseUrl}/classify`;
+        console.log("Attempting to fetch classification from:", endpoint);
 
         try {
             const response = await fetch(endpoint, {

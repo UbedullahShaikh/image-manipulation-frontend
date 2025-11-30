@@ -24,6 +24,7 @@ export default function Home() {
 
   const [classificationResult, setClassificationResult] = useState<{
     class_id: number;
+    class_name: string;
     confidence: number;
   } | null>(null);
 
@@ -95,6 +96,7 @@ export default function Home() {
 
       setClassificationResult({
         class_id: classData.class_id,
+        class_name: classData.class_name,
         confidence: classData.confidence
       });
 
