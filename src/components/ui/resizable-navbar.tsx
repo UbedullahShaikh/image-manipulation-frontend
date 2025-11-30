@@ -294,28 +294,23 @@ export const NavbarSettings = () => {
   const [apiUrl, setApiUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Load settings on mount
+  // Load settings on mount from localStorage
   React.useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.apiUrl) setApiUrl(data.apiUrl);
-      })
-      .catch((err) => console.error("Failed to load settings:", err));
+    const savedUrl = localStorage.getItem("apiUrl");
+    if (savedUrl) {
+      setApiUrl(savedUrl);
+    }
   }, []);
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiUrl }),
-      });
+      // Simulate a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      localStorage.setItem("apiUrl", apiUrl);
       setIsOpen(false);
-      // Optional: Trigger a global event or context update if needed
-      // For now, page.tsx will pick it up on next reload or we can rely on it being saved
-      alert("API URL saved!");
+      alert("API URL saved locally!");
     } catch (error) {
       console.error("Failed to save settings:", error);
       alert("Failed to save settings.");

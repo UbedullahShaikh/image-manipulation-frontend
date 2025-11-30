@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ImageUpload from "../components/ImageUpload";
 import { ArrowRight } from "lucide-react";
 import { apiService } from "../services/api";
@@ -29,14 +29,12 @@ export default function Home() {
   } | null>(null);
 
   // Load settings on mount
-  useState(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.apiUrl) setApiUrl(data.apiUrl);
-      })
-      .catch((err) => console.error("Failed to load settings:", err));
-  });
+  useEffect(() => {
+    const savedUrl = localStorage.getItem("apiUrl");
+    if (savedUrl) {
+      setApiUrl(savedUrl);
+    }
+  }, []);
 
   const handleImageUpload = (file: File, previewUrl: string) => {
     setUploadedFile(file);
@@ -61,23 +59,15 @@ export default function Home() {
   const handleAnalyze = async () => {
     if (!uploadedFile) return;
 
-    // Refresh settings before analyzing to ensure we have the latest URL from navbar
-    let currentApiUrl = apiUrl;
-    try {
-      const res = await fetch("/api/settings");
-      const data = await res.json();
-      if (data.apiUrl) {
-        currentApiUrl = data.apiUrl;
-        setApiUrl(data.apiUrl);
-      }
-    } catch (e) {
-      console.error("Failed to refresh settings", e);
-    }
+    // Get latest URL from localStorage
+    const currentApiUrl = localStorage.getItem("apiUrl");
 
     if (!currentApiUrl) {
       alert("Please configure your Ngrok API URL in the settings (gear icon in navbar)!");
       return;
     }
+
+    setApiUrl(currentApiUrl);
 
     setIsAnalyzing(true);
     setHasResults(false);
