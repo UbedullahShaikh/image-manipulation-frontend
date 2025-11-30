@@ -183,7 +183,7 @@ export default function AnalysisResults({
                                         <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
                                             <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Model Architecture</p>
                                             <p className="text-lg font-bold text-foreground flex items-center gap-2">
-                                                ResNet50
+                                                ResNet50.
                                                 <span className="text-xs bg-foreground/10 px-2 py-0.5 rounded text-foreground/70">v1.0</span>
                                             </p>
                                         </div>
