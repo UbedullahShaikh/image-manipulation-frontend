@@ -24,6 +24,7 @@ export const apiService = {
             }
 
             const data = await response.json();
+            console.log("Segmentation Response:", data);
 
             if (data.error) {
                 throw new Error(data.error);
@@ -55,7 +56,7 @@ export const apiService = {
 
             const data = await response.json();
             if (data.error) throw new Error(data.error);
-
+            console.log("Classification Response:", data);
             return data;
         } catch (error) {
             console.error("API Service Error (Classification):", error);

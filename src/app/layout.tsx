@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar, NavBody, NavItems, MobileNav, MobileNavHeader, MobileNavToggle } from "@/components/ui/resizable-navbar";
+import { Navbar, NavBody, NavItems, MobileNav, MobileNavHeader, MobileNavToggle, NavbarSettings } from "@/components/ui/resizable-navbar";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -21,11 +21,6 @@ const geistMono = Geist_Mono({
 function NavbarWrapper() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const navItems = [
-    { name: "Home", link: "#" },
-    { name: "About", link: "#about" },
-    { name: "Features", link: "#features" },
-  ];
 
   return (
     <Navbar>
@@ -38,11 +33,11 @@ function NavbarWrapper() {
           <span className="font-bold text-foreground">AI Image Analysis</span>
         </a>
 
-        {/* Nav Items */}
-        <NavItems items={navItems} />
 
-        {/* Theme Toggle */}
-        <div className="relative z-20">
+
+        {/* Right Actions */}
+        <div className="relative z-20 flex items-center gap-2">
+          <NavbarSettings />
           <ThemeToggle />
         </div>
       </NavBody>
@@ -57,6 +52,7 @@ function NavbarWrapper() {
             <span className="font-bold text-foreground">AI Image Analysis</span>
           </a>
           <div className="flex items-center gap-2">
+            <NavbarSettings />
             <ThemeToggle />
             <MobileNavToggle isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
           </div>

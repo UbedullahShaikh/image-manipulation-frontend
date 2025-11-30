@@ -14,7 +14,6 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasResults, setHasResults] = useState(false);
   const [apiUrl, setApiUrl] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"segmentation" | "classification">("segmentation");
 
   // Backend Results State
@@ -36,23 +35,6 @@ export default function Home() {
       })
       .catch((err) => console.error("Failed to load settings:", err));
   });
-
-  const handleSaveSettings = async () => {
-    setIsSaving(true);
-    try {
-      await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiUrl }),
-      });
-      alert("API URL saved successfully!");
-    } catch (error) {
-      console.error("Failed to save settings:", error);
-      alert("Failed to save settings.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleImageUpload = (file: File, previewUrl: string) => {
     setUploadedFile(file);
@@ -77,8 +59,22 @@ export default function Home() {
 
   const handleAnalyze = async () => {
     if (!uploadedFile) return;
-    if (!apiUrl) {
-      alert("Please enter your Ngrok API URL first!");
+
+    // Refresh settings before analyzing to ensure we have the latest URL from navbar
+    let currentApiUrl = apiUrl;
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      if (data.apiUrl) {
+        currentApiUrl = data.apiUrl;
+        setApiUrl(data.apiUrl);
+      }
+    } catch (e) {
+      console.error("Failed to refresh settings", e);
+    }
+
+    if (!currentApiUrl) {
+      alert("Please configure your Ngrok API URL in the settings (gear icon in navbar)!");
       return;
     }
 
@@ -88,13 +84,13 @@ export default function Home() {
     try {
       // Run both requests in parallel
       const [segData, classData] = await Promise.all([
-        apiService.segmentImage(uploadedFile, apiUrl),
-        apiService.classifyImage(uploadedFile, apiUrl)
+        apiService.segmentImage(uploadedFile, currentApiUrl),
+        apiService.classifyImage(uploadedFile, currentApiUrl)
       ]);
 
       setSegmentationResult({
-        mask: `data: image / png; base64, ${segData.mask} `,
-        maskedImage: `data: image / png; base64, ${segData.masked_image} `,
+        mask: `data:image/png;base64,${segData.mask}`,
+        maskedImage: `data:image/png;base64,${segData.masked_image}`,
       });
 
       setClassificationResult({
@@ -133,41 +129,19 @@ export default function Home() {
           <div className="max-w-4xl mx-auto space-y-10 animate-fade-in">
             {/* Header */}
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center p-2 bg-primary/5 rounded-2xl mb-2">
-                <Scan className="w-8 h-8 text-primary" />
+              <div className="flex items-center justify-center space-x-4">
+                <div className="inline-flex items-center justify-center p-2 bg-primary/5 rounded-2xl mb-2">
+                  <Scan className="w-8 h-8 text-primary" />
+                </div>
+                <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight">
+                  AI Image <span className="text-primary">Analysis</span>
+                </h1>
               </div>
-              <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight">
-                AI Image <span className="text-primary">Analysis</span>
-              </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Upload an image to perform <span className="font-semibold text-foreground">Segmentation</span> and <span className="font-semibold text-foreground">Classification</span> simultaneously.
               </p>
             </div>
 
-            {/* API URL Input with Save Button */}
-            <div className="max-w-lg mx-auto bg-card/50 backdrop-blur-sm p-2 rounded-xl border border-border shadow-sm">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <LinkIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <input
-                    type="text"
-                    value={apiUrl}
-                    onChange={(e) => setApiUrl(e.target.value)}
-                    placeholder="Paste Ngrok URL here..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-background border border-border/50 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all"
-                  />
-                </div>
-                <button
-                  onClick={handleSaveSettings}
-                  disabled={isSaving}
-                  className="px-5 py-2.5 bg-secondary text-secondary-foreground rounded-lg text-sm font-semibold hover:bg-secondary/80 transition-colors border border-border/50 disabled:opacity-50 shadow-sm"
-                >
-                  {isSaving ? "Saving..." : "Save"}
-                </button>
-              </div>
-            </div>
 
             {/* Upload Component */}
             <div className="bg-card/30 backdrop-blur-sm rounded-3xl p-1 border border-border/50 shadow-xl shadow-primary/5">
@@ -377,22 +351,13 @@ export default function Home() {
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                           <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
                             <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Model Architecture</p>
                             <p className="text-lg font-bold text-foreground flex items-center gap-2">
                               ResNet50
                               <span className="text-xs bg-foreground/10 px-2 py-0.5 rounded text-foreground/70">v1.0</span>
                             </p>
-                          </div>
-                          <div className="bg-muted/40 p-4 rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
-                            <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Confidence Score</p>
-                            <div className="flex items-center gap-3">
-                              <div className="h-2.5 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 w-[98%] rounded-full" />
-                              </div>
-                              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">High</span>
-                            </div>
                           </div>
                         </div>
                       </div>

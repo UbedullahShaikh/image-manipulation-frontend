@@ -286,3 +286,90 @@ export const NavbarButton = ({
     </Tag>
   );
 };
+
+import { IconSettings, IconDeviceFloppy } from "@tabler/icons-react";
+
+export const NavbarSettings = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [apiUrl, setApiUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load settings on mount
+  React.useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.apiUrl) setApiUrl(data.apiUrl);
+      })
+      .catch((err) => console.error("Failed to load settings:", err));
+  }, []);
+
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    try {
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiUrl }),
+      });
+      setIsOpen(false);
+      // Optional: Trigger a global event or context update if needed
+      // For now, page.tsx will pick it up on next reload or we can rely on it being saved
+      alert("API URL saved!");
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      alert("Failed to save settings.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="relative z-50">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+        title="API Settings"
+      >
+        <IconSettings className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute right-0 top-full mt-2 w-72 p-4 bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-gray-200 dark:border-neutral-800"
+          >
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Backend Configuration
+              </h3>
+              <div className="space-y-2">
+                <label className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Ngrok Public URL
+                </label>
+                <input
+                  type="password"
+                  value={apiUrl}
+                  onChange={(e) => setApiUrl(e.target.value)}
+                  placeholder="https://xxxx.ngrok-free.app"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                />
+              </div>
+              <button
+                onClick={handleSaveSettings}
+                disabled={isSaving}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                <IconDeviceFloppy className="w-4 h-4" />
+                {isSaving ? "Saving..." : "Save Configuration"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
