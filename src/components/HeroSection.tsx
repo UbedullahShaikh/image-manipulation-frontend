@@ -1,16 +1,6 @@
 export default function HeroSection() {
     return (
         <div className="text-center md:text-left space-y-8">
-            {/* Badge */}
-            <div className="flex justify-center md:justify-start">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                    </span>
-                    New v2.0 Model
-                </div>
-            </div>
 
             {/* Main Heading */}
             <div className="space-y-2">
