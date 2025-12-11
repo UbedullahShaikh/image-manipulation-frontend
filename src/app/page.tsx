@@ -8,6 +8,7 @@ import HeroSection from "../components/HeroSection";
 import FeaturesSection from "../components/FeaturesSection";
 import LoadingState from "../components/LoadingState";
 import AnalysisResults from "../components/AnalysisResults";
+import AuthenticResult from "../components/AuthenticResult";
 
 export default function Home() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -73,21 +74,33 @@ export default function Home() {
     setHasResults(false);
 
     try {
-      // Run both requests in parallel
-      const [segData, classData] = await Promise.all([
-        apiService.segmentImage(uploadedFile, currentApiUrl),
-        apiService.classifyImage(uploadedFile, currentApiUrl)
-      ]);
+      const data = await apiService.analyzeImage(uploadedFile, currentApiUrl);
 
-      setSegmentationResult({
-        mask: `data:image/png;base64,${segData.mask}`,
-        maskedImage: `data:image/png;base64,${segData.masked_image}`,
-      });
+      if (data.status === "Real") {
+        // Handle Authentic
+        setSegmentationResult(null);
+        setClassificationResult({
+          class_id: 0,
+          class_name: "Authentic",
+          confidence: (data.confidence || 0) / 100
+        });
+        setHasResults(true);
+        setIsAnalyzing(false);
+        return;
+      }
+
+      // Handle Fake
+      if (data.mask && data.masked_image) {
+        setSegmentationResult({
+          mask: `data:image/png;base64,${data.mask}`,
+          maskedImage: `data:image/png;base64,${data.masked_image}`,
+        });
+      }
 
       setClassificationResult({
-        class_id: classData.class_id,
-        class_name: classData.class_name,
-        confidence: classData.confidence
+        class_id: 0, // Not provided by new backend
+        class_name: data.manipulation_type || "Unknown",
+        confidence: (data.type_confidence || 0) / 100 // Convert 0-100 to 0-1
       });
 
       setHasResults(true);
@@ -147,13 +160,23 @@ export default function Home() {
         {isAnalyzing && <LoadingState />}
 
         {/* Results Layout */}
-        {hasResults && uploadedImageUrl && segmentationResult && classificationResult && (
-          <AnalysisResults
-            uploadedImageUrl={uploadedImageUrl}
-            segmentationResult={segmentationResult}
-            classificationResult={classificationResult}
-            onClearImage={handleClearImage}
-          />
+        {hasResults && uploadedImageUrl && classificationResult && (
+          classificationResult.class_name === "Authentic" ? (
+            <AuthenticResult
+              uploadedImageUrl={uploadedImageUrl}
+              confidence={classificationResult.confidence}
+              onClearImage={handleClearImage}
+            />
+          ) : (
+            segmentationResult && (
+              <AnalysisResults
+                uploadedImageUrl={uploadedImageUrl}
+                segmentationResult={segmentationResult}
+                classificationResult={classificationResult}
+                onClearImage={handleClearImage}
+              />
+            )
+          )
         )}
       </main>
     </div>

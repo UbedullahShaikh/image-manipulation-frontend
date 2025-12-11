@@ -1,18 +1,25 @@
-export interface SegmentationResponse {
-    mask: string;
-    masked_image: string;
+export interface AnalysisResponse {
+    status: "Real" | "Fake";
+    confidence?: number; // if Real
+    fake_confidence?: number; // if Fake
+    message?: string; // if Real
+    manipulation_type?: string; // if Fake
+    type_confidence?: number; // if Fake
+    mask?: string; // base64
+    overlay?: string; // base64
+    masked_image?: string; // base64
     error?: string;
 }
 
 export const apiService = {
-    async segmentImage(file: File, apiUrl: string): Promise<SegmentationResponse> {
+    async analyzeImage(file: File, apiUrl: string): Promise<AnalysisResponse> {
         const formData = new FormData();
         formData.append("image", file);
 
-        // Clean the URL (remove trailing slash if present) and append /segment
+        // Clean the URL (remove trailing slash if present) and append /analyze
         const baseUrl = apiUrl.replace(/\/$/, "");
-        const endpoint = `${baseUrl}/segment`;
-        console.log("Attempting to fetch segmentation from:", endpoint);
+        const endpoint = `${baseUrl}/analyze`;
+        console.log("Attempting to fetch analysis from:", endpoint);
 
         try {
             const response = await fetch(endpoint, {
@@ -25,7 +32,7 @@ export const apiService = {
             }
 
             const data = await response.json();
-            console.log("Segmentation Response:", data);
+            console.log("Analysis Response:", data);
 
             if (data.error) {
                 throw new Error(data.error);
@@ -36,33 +43,5 @@ export const apiService = {
             console.error("API Service Error:", error);
             throw error;
         }
-    },
-
-    async classifyImage(file: File, apiUrl: string): Promise<{ class_id: number; class_name: string; confidence: number }> {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const baseUrl = apiUrl.replace(/\/$/, "");
-        const endpoint = `${baseUrl}/classify`;
-        console.log("Attempting to fetch classification from:", endpoint);
-
-        try {
-            const response = await fetch(endpoint, {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error);
-            console.log("Classification Response:", data);
-            return data;
-        } catch (error) {
-            console.error("API Service Error (Classification):", error);
-            throw error;
-        }
-    },
+    }
 };

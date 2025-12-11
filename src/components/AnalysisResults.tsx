@@ -6,7 +6,7 @@ interface AnalysisResultsProps {
     segmentationResult: {
         mask: string;
         maskedImage: string;
-    };
+    } | null;
     classificationResult: {
         class_id: number;
         class_name: string;
@@ -99,8 +99,8 @@ export default function AnalysisResults({
                             <h3 className="font-bold text-foreground text-lg">Original Image</h3>
                         </div>
                         <div className="bg-card border border-border rounded-2xl p-3 shadow-premium transition-all duration-300 group-hover:shadow-premium-lg group-hover:border-primary/20">
-                            <div className="relative overflow-hidden rounded-xl bg-muted/50">
-                                <img src={uploadedImageUrl} alt="Original" className="w-full h-auto object-contain" />
+                            <div className="relative overflow-hidden rounded-xl bg-muted/50 flex justify-center">
+                                <img src={uploadedImageUrl} alt="Original" className="w-auto h-auto max-h-[300px] object-contain" />
                             </div>
                         </div>
                     </div>
@@ -109,37 +109,53 @@ export default function AnalysisResults({
                     <div className="space-y-4 group">
                         <div className="flex items-center justify-between px-1">
                             <h3 className="font-bold text-foreground text-lg">Generated Mask</h3>
-                            <button
-                                onClick={() => downloadImage(segmentationResult.mask, "segmentation-mask.png")}
-                                className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full transition-colors"
-                            >
-                                <Download className="w-3 h-3" /> Download
-                            </button>
+                            {segmentationResult && (
+                                <button
+                                    onClick={() => downloadImage(segmentationResult.mask, "segmentation-mask.png")}
+                                    className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full transition-colors"
+                                >
+                                    <Download className="w-3 h-3" /> Download
+                                </button>
+                            )}
                         </div>
                         <div className="bg-card border border-border rounded-2xl p-3 shadow-premium transition-all duration-300 group-hover:shadow-premium-lg group-hover:border-primary/20">
-                            <div className="relative overflow-hidden rounded-xl bg-muted/50">
-                                <img src={segmentationResult.mask} alt="Mask" className="w-full h-auto object-contain" />
+                            <div className="relative overflow-hidden rounded-xl bg-muted/50 aspect-square flex items-center justify-center">
+                                {segmentationResult ? (
+                                    <img src={segmentationResult.mask} alt="Mask" className="w-auto h-auto max-h-[300px] object-contain" />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center text-center p-6 space-y-4">
+                                        <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                            <CheckCircle className="w-10 h-10 text-emerald-500" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-lg text-foreground">No Forgery Detected</p>
+                                            <p className="text-sm text-muted-foreground">The image appears to be authentic.</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Segmented Object */}
-                    <div className="space-y-4 group">
-                        <div className="flex items-center justify-between px-1">
-                            <h3 className="font-bold text-foreground text-lg">Segmented Object</h3>
-                            <button
-                                onClick={() => downloadImage(segmentationResult.maskedImage, "segmented-object.png")}
-                                className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full transition-colors"
-                            >
-                                <Download className="w-3 h-3" /> Download
-                            </button>
-                        </div>
-                        <div className="bg-card border border-border rounded-2xl p-3 shadow-premium transition-all duration-300 group-hover:shadow-premium-lg group-hover:border-primary/20">
-                            <div className="relative overflow-hidden rounded-xl bg-muted/50">
-                                <img src={segmentationResult.maskedImage} alt="Segmented" className="w-full h-auto object-contain" />
+                    {/* Segmented Object - Only show if we have a result */}
+                    {segmentationResult && (
+                        <div className="space-y-4 group">
+                            <div className="flex items-center justify-between px-1">
+                                <h3 className="font-bold text-foreground text-lg">Segmented Object</h3>
+                                <button
+                                    onClick={() => downloadImage(segmentationResult.maskedImage, "segmented-object.png")}
+                                    className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full transition-colors"
+                                >
+                                    <Download className="w-3 h-3" /> Download
+                                </button>
+                            </div>
+                            <div className="bg-card border border-border rounded-2xl p-3 shadow-premium transition-all duration-300 group-hover:shadow-premium-lg group-hover:border-primary/20">
+                                <div className="relative overflow-hidden rounded-xl bg-muted/50 flex justify-center">
+                                    <img src={segmentationResult.maskedImage} alt="Segmented" className="w-auto h-auto max-h-[300px] object-contain" />
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             )}
 
